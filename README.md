@@ -6,11 +6,21 @@ It never deletes anything. It shows you a preview and asks before moving files, 
 
 ## Install
 
-You need a Mac with Python 3.9+ and the Xcode Command Line Tools (`xcode-select --install`). Then:
+You need a Mac with Python 3.9+, the Xcode Command Line Tools and [pipx](https://pipx.pypa.io/). If you don't have them yet:
+
+```sh
+xcode-select --install
+brew install pipx && pipx ensurepath   # then open a new terminal window
+```
+
+Then install photo-sorter and check it works:
 
 ```sh
 pipx install git+https://github.com/artemdev/photo-sorter
+photo-sorter --version
 ```
+
+To update later, run `pipx upgrade photo-sorter`. If pipx warns about a space in its home path, that's harmless on macOS; to silence it, add `export PIPX_HOME="$HOME/.local/pipx"` to `~/.zshrc` before installing.
 
 ## Use
 

@@ -62,7 +62,10 @@ Turn the separate scripts into one `photo-sorter` command that anyone can instal
 - [x] Ship `cities.tsv` and `meta.swift` inside the package. The Swift helper is compiled once into `~/Library/Caches/photo-sorter/`.
 - [ ] Publish to PyPI so it's just `pipx install photo-sorter` (or `uv tool install photo-sorter`).
 - [ ] Swift helper: ship a prebuilt universal (Intel + Apple Silicon) binary in the package, so users don't need Xcode tools. Fall back to compiling `meta.swift` only if the binary can't run.
-- [ ] Later: a Homebrew tap (`brew install artemdev/tap/photo-sorter`).
+- [ ] Later: a Homebrew tap (`brew install artemdev/tap/photo-sorter`). This would also remove the pipx setup step and its "space in home path" warning on macOS.
+- [x] README: install prerequisites (Xcode tools, pipx), a check step (`photo-sorter --version`), how to upgrade, and the pipx home-path warning.
+- [ ] Tag releases (`v0.1.0`, …) so users can install a fixed version: `pipx install git+https://github.com/artemdev/photo-sorter@v0.1.0`.
+- [ ] Check at startup that the Xcode tools are present and say how to install them, before any file is moved (today this is only caught when the move step first runs).
 
 **Usage** (done unless marked)
 ```sh
