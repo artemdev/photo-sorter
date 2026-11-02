@@ -10,7 +10,7 @@ A small app that runs on your Mac and opens in the browser, so the whole workflo
 - It's a local web app: a **React + TypeScript (Vite)** frontend and a Python (FastAPI) backend bound to `127.0.0.1` only.
 - In development, Vite serves the React app and proxies `/api` to the Python server. For everyday use, `npm run build` once and the Python server serves the built files, so `run.sh` starts one process and opens the browser (no Node needed to run it).
 - Frontend libraries: TanStack Query for API calls and live job status, and a virtualized grid (e.g. `react-virtuoso`) so the library stays fast with thousands of thumbnails.
-- It runs the existing scripts in `scripts/` as subprocesses. The dashboard never moves files itself (the one exception is Trash, below), so `moves.log` and `.photo-db/` stay consistent. No Claude/AI is needed to use it.
+- It runs the existing scripts in `scripts/` as subprocesses (or, once the CLI in section 3 exists, calls the same `photo_sorter` functions the CLI uses). The dashboard never moves files itself (the one exception is Trash, below), so `moves.log` and `.photo-db/` stay consistent. No Claude/AI is needed to use it.
 - The server refuses any path that isn't on the selected drive.
 
 **Planned layout**
@@ -53,11 +53,39 @@ run.sh           builds web/ if needed, starts the server, opens the browser
 - [ ] Dashboard: API tests for find / duplicates / trash, and the path guard.
 - [ ] Dashboard UI: component tests (Vitest + React Testing Library) for the sort flow, filters and the duplicate review.
 
-## 3. Scripts
+## 3. CLI with simple install
 
+Turn the separate scripts into one `photo-sorter` command that anyone can install and use without cloning the repo or knowing Python.
+
+**Install**
+- [ ] Package it as a Python package (`pyproject.toml`) with a `photo-sorter` command, installable with one line: `pipx install photo-sorter` (or `uv tool install photo-sorter`). Publish to PyPI.
+- [ ] Ship `cities.tsv` inside the package as package data.
+- [ ] Swift helper: ship a prebuilt universal (Intel + Apple Silicon) binary in the package, so users don't need Xcode tools. Fall back to compiling `meta.swift` only if the binary can't run.
+- [ ] Later: a Homebrew tap (`brew install artemdev/tap/photo-sorter`).
+
+**Usage**
+```sh
+photo-sorter                          # pick a drive from a list, preview, confirm, sort
+photo-sorter sort "/Volumes/MY DRIVE" # same, for a given drive
+photo-sorter preview <drive>          # show what would happen, move nothing
+photo-sorter drives                   # list connected drives
+photo-sorter import|hash|move <drive> # single steps
+photo-sorter leftovers <drive>        # move lone .AAE files to leftovers/
+photo-sorter undo <drive>             # undo the last run from moves.log
+photo-sorter rebuild-db | upgrade <drive>
+photo-sorter dashboard                # open the web dashboard
+```
+- [ ] `sort` runs import → hash → move, always shows the dry-run plan first and asks "Continue? [y/N]" (`--yes` to skip for scripts).
+- [ ] Clear progress bars for import and hashing, and a short plain-language summary at the end (the same report the agent writes).
+- [ ] Friendly errors instead of tracebacks: drive not found, read-only drive (NTFS), missing macOS permission (with the exact System Settings path).
+- [ ] `--help` for every command with examples; `photo-sorter --version`.
+- [ ] An `undo` command that replays `moves.log` backwards.
+
+**Code**
+- [ ] Move the scripts into a package (`photo_sorter/`) as importable modules, so the CLI and the dashboard call the same functions instead of running subprocesses.
 - [ ] Share one copy of `IMAGE_EXTS` / `VIDEO_EXTS` (currently repeated in `import_to_draft.py`, `hash_draft.py` and `list_drives.py`).
-- [ ] An undo command that replays `moves.log` backwards.
-- [ ] A single `photo-sorter` CLI entry point (`photo-sorter import|hash|move|...`) instead of separate scripts.
+- [ ] Keep `scripts/*.py` working as thin wrappers until the agent in `agent/` is switched to the CLI.
+- [ ] README: replace the four script commands with the one-line install and `photo-sorter sort`.
 
 ## 4. Later
 
