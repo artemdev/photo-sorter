@@ -53,11 +53,11 @@ You can't talk to the user mid-run. The person who launched you has already deci
 - Hash already in `.photo-db/pictures.tsv`, or repeated earlier in this batch → `duplicates/`. The match is logged in `.photo-db/duplicates.tsv`.
 - Otherwise → `media/YYYY/<Month>/<City>/`, and the photo or video is added to `pictures.tsv`. Videos go into the same month folders as photos.
 - **Date**: EXIF capture date for photos; for videos the recording date stored in the file (`date_source = video`). For iPhone edited copies (`IMG_E1234`) that have none, it uses the original `IMG_1234`'s date. Otherwise the file's *modified* date. The *created* date is never used, because on this drive it shows when the files were copied over.
-- **City**: GPS → nearest town over 5,000 people within 30 km, looked up offline in `~/Desktop/projects/own/photo-sorter/assets/cities.tsv` (GeoNames). Nothing is sent online.
+- **City**: GPS → nearest town over 5,000 people within 30 km, looked up offline in `photo_sorter/data/cities.tsv` (GeoNames). Nothing is sent online.
 - Same-named files can be different photos or videos from different years (the iPhone counter wraps at 9999). A same-named `.MOV` is the photo's Live Photo clip only if it was recorded within a day of it (real clips are within seconds). Otherwise it's a separate video and is filed on its own by its recording date. Each Live Photo `.MOV`/`.AAE` follows the same-named photo closest to it in time.
 - A video filed on its own never shares a folder with a same-named photo; it gets a `-2` suffix instead, so it can't be mistaken for a Live Photo clip later.
 - Images/videos with no up-to-date hash stay in draft/, so nothing is filed without a duplicate check.
-- The first ever run (and the first after `meta.swift` changes) compiles a small Swift helper (`meta.swift`, which reads EXIF/GPS through macOS ImageIO so HEIC works, and video dates/GPS through AVFoundation) into `scripts/.bin/`. That takes a few seconds and is normal.
+- The first ever run (and the first after `meta.swift` changes) compiles a small Swift helper (`meta.swift`, which reads EXIF/GPS through macOS ImageIO so HEIC works, and video dates/GPS through AVFoundation) into `~/Library/Caches/photo-sorter/`. That takes a few seconds and is normal.
 
 ### Clear leftovers: lone .AAE files on root → leftovers/
 `python3 ~/Desktop/projects/own/photo-sorter/scripts/clear_leftovers.py "$DRIVE" [--dry-run]`

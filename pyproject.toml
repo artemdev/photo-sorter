@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "photo-sorter"
+dynamic = ["version"]
+description = "Sort the photos and videos on an external drive into media/YYYY/Month/City folders, with duplicates set aside."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Artem" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Graphics",
+]
+
+[project.urls]
+Homepage = "https://github.com/artemdev/photo-sorter"
+
+[project.scripts]
+photo-sorter = "photo_sorter.cli:main"
+
+[tool.setuptools]
+packages = ["photo_sorter"]
+
+[tool.setuptools.dynamic]
+version = { attr = "photo_sorter.__version__" }
+
+[tool.setuptools.package-data]
+photo_sorter = ["meta.swift", "data/cities.tsv"]

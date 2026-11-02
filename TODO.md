@@ -10,7 +10,7 @@ A small app that runs on your Mac and opens in the browser, so the whole workflo
 - It's a local web app: a **React + TypeScript (Vite)** frontend and a Python (FastAPI) backend bound to `127.0.0.1` only.
 - In development, Vite serves the React app and proxies `/api` to the Python server. For everyday use, `npm run build` once and the Python server serves the built files, so `run.sh` starts one process and opens the browser (no Node needed to run it).
 - Frontend libraries: TanStack Query for API calls and live job status, and a virtualized grid (e.g. `react-virtuoso`) so the library stays fast with thousands of thumbnails.
-- It runs the existing scripts in `scripts/` as subprocesses (or, once the CLI in section 3 exists, calls the same `photo_sorter` functions the CLI uses). The dashboard never moves files itself (the one exception is Trash, below), so `moves.log` and `.photo-db/` stay consistent. No Claude/AI is needed to use it.
+- It calls the same `photo_sorter` functions the CLI uses. The dashboard never moves files itself (the one exception is Trash, below), so `moves.log` and `.photo-db/` stay consistent. No Claude/AI is needed to use it.
 - The server refuses any path that isn't on the selected drive.
 
 **Planned layout**
@@ -58,12 +58,13 @@ run.sh           builds web/ if needed, starts the server, opens the browser
 Turn the separate scripts into one `photo-sorter` command that anyone can install and use without cloning the repo or knowing Python.
 
 **Install**
-- [ ] Package it as a Python package (`pyproject.toml`) with a `photo-sorter` command, installable with one line: `pipx install photo-sorter` (or `uv tool install photo-sorter`). Publish to PyPI.
-- [ ] Ship `cities.tsv` inside the package as package data.
+- [x] Python package (`pyproject.toml`) with a `photo-sorter` command; installs with `pipx install git+https://github.com/artemdev/photo-sorter`.
+- [x] Ship `cities.tsv` and `meta.swift` inside the package. The Swift helper is compiled once into `~/Library/Caches/photo-sorter/`.
+- [ ] Publish to PyPI so it's just `pipx install photo-sorter` (or `uv tool install photo-sorter`).
 - [ ] Swift helper: ship a prebuilt universal (Intel + Apple Silicon) binary in the package, so users don't need Xcode tools. Fall back to compiling `meta.swift` only if the binary can't run.
 - [ ] Later: a Homebrew tap (`brew install artemdev/tap/photo-sorter`).
 
-**Usage**
+**Usage** (done unless marked)
 ```sh
 photo-sorter                          # pick a drive from a list, preview, confirm, sort
 photo-sorter sort "/Volumes/MY DRIVE" # same, for a given drive
@@ -71,21 +72,24 @@ photo-sorter preview <drive>          # show what would happen, move nothing
 photo-sorter drives                   # list connected drives
 photo-sorter import|hash|move <drive> # single steps
 photo-sorter leftovers <drive>        # move lone .AAE files to leftovers/
-photo-sorter undo <drive>             # undo the last run from moves.log
 photo-sorter rebuild-db | upgrade <drive>
-photo-sorter dashboard                # open the web dashboard
+photo-sorter undo <drive>             # TODO: undo the last run from moves.log
+photo-sorter dashboard                # TODO: open the web dashboard
 ```
-- [ ] `sort` runs import → hash → move, always shows the dry-run plan first and asks "Continue? [y/N]" (`--yes` to skip for scripts).
-- [ ] Clear progress bars for import and hashing, and a short plain-language summary at the end (the same report the agent writes).
-- [ ] Friendly errors instead of tracebacks: drive not found, read-only drive (NTFS), missing macOS permission (with the exact System Settings path).
-- [ ] `--help` for every command with examples; `photo-sorter --version`.
+- [x] `sort` runs import → hash → move, shows each dry-run plan first and asks before moving (`--yes` to skip). Stops and points to `upgrade` on an older library layout.
+- [x] Friendly errors instead of tracebacks: drive not found or unplugged, read-only drive (NTFS), missing macOS permission (with the System Settings path), missing Xcode tools, Ctrl-C.
+- [x] `--help` for every command with examples; `photo-sorter --version`.
+- [ ] Progress bars for import and hashing (hashing prints a count every 500 files today).
+- [ ] A short plain-language summary at the end of `sort` (the same report the agent writes), instead of each step's own output.
 - [ ] An `undo` command that replays `moves.log` backwards.
 
 **Code**
-- [ ] Move the scripts into a package (`photo_sorter/`) as importable modules, so the CLI and the dashboard call the same functions instead of running subprocesses.
-- [ ] Share one copy of `IMAGE_EXTS` / `VIDEO_EXTS` (currently repeated in `import_to_draft.py`, `hash_draft.py` and `list_drives.py`).
-- [ ] Keep `scripts/*.py` working as thin wrappers until the agent in `agent/` is switched to the CLI.
-- [ ] README: replace the four script commands with the one-line install and `photo-sorter sort`.
+- [x] Move the scripts into a package (`photo_sorter/`) as importable modules.
+- [x] Keep `scripts/*.py` working as thin wrappers, so the agent in `agent/` keeps working.
+- [x] README: one-line install and `photo-sorter`.
+- [ ] Let the modules return results instead of printing, so the CLI and the dashboard share one summary format.
+- [ ] Share one copy of `IMAGE_EXTS` / `VIDEO_EXTS` (currently repeated in `importer.py`, `hasher.py`, `mover.py` and `drives.py`).
+- [ ] Switch the agent from `scripts/*.py` to the `photo-sorter` command, then remove the wrappers.
 
 ## 4. Later
 

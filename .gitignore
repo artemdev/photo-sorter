@@ -1,5 +1,7 @@
-# Compiled Swift helper
-scripts/.bin/
+# Packaging
+build/
+*.egg-info/
+dist/
 
 # Python
 __pycache__/
