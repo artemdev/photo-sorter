@@ -7,18 +7,24 @@ Planned work, roughly in order. Nothing here is built yet.
 A small app that runs on your Mac and opens in the browser, so the whole workflow can be driven with buttons instead of terminal commands.
 
 **Decisions made**
-- It's a local web app: a Python (FastAPI) server bound to `127.0.0.1` only, with plain HTML/JS/CSS and no build step. `run.sh` starts it and opens the browser.
+- It's a local web app: a **React + TypeScript (Vite)** frontend and a Python (FastAPI) backend bound to `127.0.0.1` only.
+- In development, Vite serves the React app and proxies `/api` to the Python server. For everyday use, `npm run build` once and the Python server serves the built files, so `run.sh` starts one process and opens the browser (no Node needed to run it).
+- Frontend libraries: TanStack Query for API calls and live job status, and a virtualized grid (e.g. `react-virtuoso`) so the library stays fast with thousands of thumbnails.
 - It runs the existing scripts in `scripts/` as subprocesses. The dashboard never moves files itself (the one exception is Trash, below), so `moves.log` and `.photo-db/` stay consistent. No Claude/AI is needed to use it.
 - The server refuses any path that isn't on the selected drive.
 
 **Planned layout**
 ```
 dashboard/
-  server.py    FastAPI routes
-  jobs.py      runs one script at a time, streams its output to the page
-  library.py   reads .photo-db/*.tsv for find / view / duplicates
-  thumbs.py    thumbnails via macOS `sips` (handles HEIC), cached on the drive
-  static/      index.html, app.js, style.css
+  server/
+    main.py      FastAPI routes; also serves web/dist in normal use
+    jobs.py      runs one script at a time, streams its output to the page
+    library.py   reads .photo-db/*.tsv for find / view / duplicates
+    thumbs.py    thumbnails via macOS `sips` (handles HEIC), cached on the drive
+  web/           React + TypeScript (Vite)
+    src/pages/   DrivePicker, Sort, Library, Duplicates
+    src/api/     typed API client + TanStack Query hooks
+run.sh           builds web/ if needed, starts the server, opens the browser
 ```
 
 **Screens**
@@ -45,6 +51,7 @@ dashboard/
 - [ ] pytest suite that builds a fake drive in a temp folder from generated sample images (never real photos).
 - [ ] Cover import (incl. Live Photo `.MOV` / `.AAE` grouping and name clashes), hashing (resume, skip unchanged), filing by date and city, duplicate detection, leftovers, layout upgrade, and dry runs moving nothing.
 - [ ] Dashboard: API tests for find / duplicates / trash, and the path guard.
+- [ ] Dashboard UI: component tests (Vitest + React Testing Library) for the sort flow, filters and the duplicate review.
 
 ## 3. Scripts
 
