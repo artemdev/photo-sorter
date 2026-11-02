@@ -1,0 +1,23 @@
+# Compiled Swift helper
+scripts/.bin/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# macOS
+.DS_Store
+._*
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Never commit real photo libraries or their databases
+.photo-db/
+draft/
+media/
+duplicates/
+leftovers/
